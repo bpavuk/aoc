@@ -9,9 +9,7 @@ fun day2stage2(): Int = inputs.readLines().count { string ->
     val numReport = string.split(" ").map { s -> s.toInt() }
     val safe = checkSafe(numReport)
     if (!safe) {
-        val debuggable = debuggable(numReport)
-        if (debuggable) println("$string is unsafe, but fixable")
-        debuggable
+        debuggable(numReport)
     } else true
 }
 
@@ -45,13 +43,4 @@ fun debuggable(report: List<Int>): Boolean {
         )
     }
     return attemptStray
-}
-
-fun dumbDebug(report: List<Int>): Boolean {
-    val diffs = mutableListOf<Int>()
-    for (i in 0..report.lastIndex - 1) {
-        diffs.add(report[i] - report[i + 1])
-    }
-
-    return report.count { i -> i == 0 || i !in -3..-1 } <= 1 || report.count { i -> i == 0 || i !in 1..3 } <= 1
 }
