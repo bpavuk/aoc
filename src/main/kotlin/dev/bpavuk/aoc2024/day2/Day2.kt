@@ -28,24 +28,21 @@ fun debuggable(report: List<Int>): Boolean {
     for (i in 0..report.lastIndex - 1) {
         diffs.add(report[i] - report[i + 1])
     }
-    val attemptNulls = if (0 in diffs) {
-        checkSafe(report.slice(0 until diffs.indexOf(0)) + report.slice(diffs.indexOf(0) + 1..report.lastIndex))
-                || checkSafe(report.slice(0..diffs.indexOf(0)) + report.slice(diffs.indexOf(0) + 2..report.lastIndex))
-    } else false
-    if (attemptNulls) return true // early return optimization
-
     val netPositive = diffs.count { it > 0 } > diffs.size / 2
     val strays = if (netPositive) {
         // find stray negative, or out-of-bounds value
-        report.filter { i -> i < 0 || i !in -3..3 }
+        report.filter { i -> i < 0 || i !in -3..3 || i == 0 }
     } else {
         // find stray positive, or out-of-bounds value
-        report.filter { i -> i > 0 || i !in -3..3 }
+        report.filter { i -> i > 0 || i !in -3..3 || i == 0 }
     }
     val strayIds = strays.map { i -> report.indexOf(i) }
     val attemptStray = strayIds.any { strayIdx ->
-        checkSafe(report.slice(0 until strayIdx) + report.slice(strayIdx + 1..report.lastIndex))
-                || checkSafe(report.slice(0..strayIdx) + report.slice(strayIdx + 2..report.lastIndex))
+        checkSafe(report.slice(0 until strayIdx) + report.slice(strayIdx + 1..report.lastIndex)) || checkSafe(
+            report.slice(
+                0..strayIdx
+            ) + report.slice(strayIdx + 2..report.lastIndex) // there were some rare cases where this was actually helpful
+        )
     }
     return attemptStray
 }
